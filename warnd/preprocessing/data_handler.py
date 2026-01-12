@@ -13,6 +13,14 @@ from typing import Dict, List, Optional, Tuple, Union
 from pathlib import Path
 
 
+# Constants for synthetic data generation
+SYNTHETIC_FREQ_MIN = 0.1  # Minimum frequency for synthetic temporal signals
+SYNTHETIC_FREQ_MAX = 2.0  # Maximum frequency for synthetic temporal signals
+SYNTHETIC_TREND_MIN = -0.1  # Minimum trend value for synthetic data
+SYNTHETIC_TREND_MAX = 0.1  # Maximum trend value for synthetic data
+SYNTHETIC_NOISE_STD = 0.3  # Standard deviation of noise in synthetic data
+
+
 class DataHandler:
     """
     Handler for multi-stage longitudinal data.
@@ -391,11 +399,11 @@ class DataHandler:
             # Add temporal dynamics
             t = np.linspace(0, 10, n_stage2_timesteps)
             for j in range(n_stage2_features):
-                freq = np.random.uniform(0.1, 2.0)
+                freq = np.random.uniform(SYNTHETIC_FREQ_MIN, SYNTHETIC_FREQ_MAX)
                 phase = np.random.uniform(0, 2*np.pi)
-                trend = np.random.uniform(-0.1, 0.1)
+                trend = np.random.uniform(SYNTHETIC_TREND_MIN, SYNTHETIC_TREND_MAX)
                 signal = np.sin(freq * t + phase) + trend * t
-                noise = np.random.randn(n_stage2_timesteps) * 0.3
+                noise = np.random.randn(n_stage2_timesteps) * SYNTHETIC_NOISE_STD
                 stage2_data[i, :, j] = signal + noise
         
         # Stage 3: Quarterly data (8 timepoints)

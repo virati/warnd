@@ -10,6 +10,12 @@ from typing import Dict, List, Optional, Tuple
 from scipy import stats, signal
 
 
+# Constants for feature extraction
+EPSILON = 1e-10  # Small value to prevent division by zero
+SAMPLE_ENTROPY_PATTERN_LENGTH = 2  # Default pattern length for sample entropy
+SAMPLE_ENTROPY_TOLERANCE = 0.2  # Default tolerance as fraction of std
+
+
 class FeatureExtractor:
     """
     Feature extractor for multi-stage depression prediction data.
@@ -110,7 +116,7 @@ class FeatureExtractor:
             
             # Spectral entropy
             power_normalized = power[:n_timesteps//2] / np.sum(power[:n_timesteps//2])
-            spectral_entropy = -np.sum(power_normalized * np.log2(power_normalized + 1e-10))
+            spectral_entropy = -np.sum(power_normalized * np.log2(power_normalized + EPSILON))
             
             features.extend([
                 dominant_freq,
@@ -155,24 +161,30 @@ class FeatureExtractor:
         
         return np.array(features)
     
-    def _sample_entropy(self, series: np.ndarray, m: int = 2, r: float = 0.2) -> float:
+    def _sample_entropy(self, series: np.ndarray, m: int = SAMPLE_ENTROPY_PATTERN_LENGTH, r: float = SAMPLE_ENTROPY_TOLERANCE) -> float:
         """
         Calculate sample entropy of a time series.
         
+        Sample entropy measures the regularity and complexity of a time series.
+        Lower values indicate more regular/predictable patterns.
+        
         Args:
             series: Time series
-            m: Pattern length
-            r: Tolerance (fraction of std)
+            m: Pattern length (default: 2). Length of the template pattern to match.
+               Typical values are 1-3, with 2 being most common.
+            r: Tolerance (fraction of std, default: 0.2). Matching threshold.
+               Typical values: 0.1-0.25. Higher values result in more matches
+               and lower entropy values.
             
         Returns:
-            Sample entropy value
+            Sample entropy value (higher = more complex/irregular)
         """
         N = len(series)
         if N < m + 1:
             return 0.0
         
         # Normalize
-        series_norm = (series - np.mean(series)) / (np.std(series) + 1e-10)
+        series_norm = (series - np.mean(series)) / (np.std(series) + EPSILON)
         r_abs = r * np.std(series_norm)
         
         def _maxdist(xi, xj):

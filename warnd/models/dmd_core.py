@@ -134,6 +134,15 @@ class DMDCore:
         """
         Compute importance of each mode based on amplitude and eigenvalue.
         
+        Mode importance combines two factors:
+        1. Amplitude magnitude: How much each mode contributes to the initial state
+        2. Eigenvalue stability: Modes with eigenvalues near the unit circle (|λ| ≈ 1)
+           persist over time and are more important for long-term dynamics
+        
+        The formula: |b_i| / (1 + ||λ_i| - 1|) gives higher importance to:
+        - Modes with large amplitudes (|b_i|)
+        - Modes with eigenvalues close to unit circle (|λ_i| ≈ 1)
+        
         Returns:
             Importance score for each mode
         """

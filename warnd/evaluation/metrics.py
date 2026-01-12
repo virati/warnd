@@ -21,6 +21,10 @@ from sklearn.metrics import (
 )
 
 
+# Constants for metric comparison
+COMPARISON_TOLERANCE = 1e-6  # Tolerance for comparing floating point metrics
+
+
 def compute_metrics(
     y_true: np.ndarray,
     y_pred: np.ndarray,
@@ -147,17 +151,17 @@ def compare_models(
         Name of better model
     """
     # Compare by AUC-ROC first
-    if abs(metrics1['auc_roc'] - metrics2['auc_roc']) > 1e-6:
+    if abs(metrics1['auc_roc'] - metrics2['auc_roc']) > COMPARISON_TOLERANCE:
         winner = model1_name if metrics1['auc_roc'] > metrics2['auc_roc'] else model2_name
         return f"{winner} wins (higher AUC-ROC)"
     
     # Tie on AUC-ROC, compare by Log Loss (lower is better)
-    if abs(metrics1['log_loss'] - metrics2['log_loss']) > 1e-6:
+    if abs(metrics1['log_loss'] - metrics2['log_loss']) > COMPARISON_TOLERANCE:
         winner = model1_name if metrics1['log_loss'] < metrics2['log_loss'] else model2_name
         return f"{winner} wins (lower Log Loss)"
     
     # Tie on Log Loss, compare by F1 Score
-    if abs(metrics1['f1_score'] - metrics2['f1_score']) > 1e-6:
+    if abs(metrics1['f1_score'] - metrics2['f1_score']) > COMPARISON_TOLERANCE:
         winner = model1_name if metrics1['f1_score'] > metrics2['f1_score'] else model2_name
         return f"{winner} wins (higher F1 Score)"
     
